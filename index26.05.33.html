@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ЕНТ Репетитор — AI</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#080C12;--bg2:#0F1520;--bg3:#141C2A;--bg4:#1A2235;
+  --gold:#F5C542;--gold2:#E8B430;--g3:rgba(245,197,66,0.1);
+  --blue:#4A9EFF;--green:#3DD68C;--red:#FF5C5C;--amber:#FFA040;
+  --b1:rgba(245,197,66,0.12);--b2:rgba(245,197,66,0.28);
+  --text:#E8EDF5;--m1:#5A6A80;--m2:#8A9AB0;
+  --mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(245,197,66,0.015) 1px,transparent 1px),linear-gradient(90deg,rgba(245,197,66,0.015) 1px,transparent 1px);background-size:52px 52px;pointer-events:none;z-index:0;}
+
+/* KEY SCREEN */
+.ks{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:1rem;}
+.kb{background:var(--bg2);border:1px solid var(--b2);border-radius:16px;padding:2rem;max-width:440px;width:100%;text-align:center;}
+.ki{font-size:2.5rem;margin-bottom:.75rem;}
+.kt{font-size:1.2rem;font-weight:700;color:var(--gold);margin-bottom:.4rem;}
+.kd{font-size:.82rem;color:var(--m2);line-height:1.6;margin-bottom:1.25rem;}
+.kd a{color:var(--blue);}
+input.kinp{width:100%;background:var(--bg3);border:1px solid var(--b2);border-radius:8px;padding:.7rem 1rem;font-family:var(--mono);font-size:.8rem;color:var(--text);outline:none;margin-bottom:.5rem;}
+input.kinp:focus{border-color:var(--gold);}
+.kerr{font-size:.75rem;color:var(--red);margin-bottom:.6rem;display:none;}
+.kn{font-size:.68rem;color:var(--m1);margin-top:.75rem;line-height:1.5;}
+
+/* APP */
+.app{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:1.25rem 1.5rem;display:none;}
+
+/* HEADER */
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.4rem;background:var(--bg2);border:1px solid var(--b1);border-radius:14px;margin-bottom:1.1rem;gap:1rem;flex-wrap:wrap;}
+.logo{display:flex;align-items:center;gap:.75rem;}
+.logo-ic{width:40px;height:40px;background:var(--gold);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.logo-t{font-size:1rem;font-weight:700;color:var(--gold);}
+.logo-s{font-size:.65rem;color:var(--m2);font-family:var(--mono);}
+.tmr{display:flex;flex-direction:column;align-items:center;padding:.45rem 1rem;background:var(--bg3);border:1px solid var(--b1);border-radius:9px;}
+.tmr-l{font-size:.6rem;color:var(--m2);font-family:var(--mono);}
+.tmr-v{font-size:1.3rem;font-weight:600;font-family:var(--mono);color:var(--text);}
+.tmr-v.w{color:var(--amber)}.tmr-v.d{color:var(--red);animation:bl .8s step-end infinite;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.3}}
+.tmr-bs{display:flex;gap:.3rem;margin-top:.3rem;}
+.tb{padding:.2rem .55rem;font-size:.63rem;font-family:var(--mono);border-radius:4px;border:1px solid var(--b2);background:transparent;color:var(--m2);cursor:pointer;transition:all .15s;user-select:none;}
+.tb:hover,.tb.on{background:var(--g3);color:var(--gold);border-color:var(--gold);}
+.stats{display:flex;gap:.6rem;align-items:center;}
+.st{text-align:center;padding:.35rem .7rem;background:var(--bg3);border:1px solid var(--b1);border-radius:7px;min-width:60px;}
+.st-n{font-size:1.15rem;font-weight:700;color:var(--gold);font-family:var(--mono);}
+.st-l{font-size:.6rem;color:var(--m2);}
+
+/* TABS */
+.tabs{display:flex;gap:.4rem;margin-bottom:1.1rem;background:var(--bg2);border:1px solid var(--b1);border-radius:11px;padding:.35rem;}
+.tab{flex:1;text-align:center;padding:.5rem;border-radius:7px;cursor:pointer;font-size:.8rem;font-weight:500;color:var(--m2);transition:all .2s;user-select:none;}
+.tab:hover{color:var(--text);}
+.tab.active{background:var(--g3);color:var(--gold);border:1px solid var(--b2);}
+
+/* SUBJECTS */
+.subjs{display:grid;grid-template-columns:repeat(8,1fr);gap:.5rem;margin-bottom:1rem;}
+.sj{padding:.65rem .3rem;background:var(--bg2);border:1px solid var(--b1);border-radius:9px;cursor:pointer;text-align:center;transition:all .18s;user-select:none;position:relative;}
+.sj:hover{border-color:var(--b2);background:var(--g3);}
+.sj.active{border-color:var(--gold);background:var(--g3);}
+.sj.active::after{content:'';position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);width:18px;height:2px;background:var(--gold);border-radius:2px;}
+.sj-ic{font-size:1.2rem;margin-bottom:.2rem;}
+.sj-nm{font-size:.6rem;font-weight:600;color:var(--text);line-height:1.3;}
+
+/* PROGRESS */
+.pgb{height:2px;background:var(--bg4);border-radius:2px;margin-bottom:.9rem;overflow:hidden;}
+.pgf{height:100%;background:var(--gold);border-radius:2px;transition:width .5s;}
+
+/* MAIN */
+.main{display:grid;grid-template-columns:1fr 350px;gap:1rem;}
+
+/* QCARD */
+.qcard{background:var(--bg2);border:1px solid var(--b1);border-radius:14px;padding:1.4rem;}
+.qtop{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;gap:.5rem;}
+.qbg{font-size:.65rem;font-family:var(--mono);padding:.18rem .7rem;border:1px solid var(--gold);border-radius:20px;color:var(--gold);}
+.brow{display:flex;gap:.4rem;align-items:center;}
+.qst{font-size:.63rem;font-family:var(--mono);padding:.18rem .55rem;border-radius:20px;background:rgba(74,158,255,0.1);color:var(--blue);border:1px solid rgba(74,158,255,0.2);}
+.qdf{font-size:.65rem;font-family:var(--mono);padding:.18rem .65rem;border-radius:20px;}
+.de{background:rgba(61,214,140,0.1);color:var(--green);border:1px solid rgba(61,214,140,0.2);}
+.dm{background:rgba(74,158,255,0.1);color:var(--blue);border:1px solid rgba(74,158,255,0.2);}
+.dh{background:rgba(255,92,92,0.1);color:var(--red);border:1px solid rgba(255,92,92,0.2);}
+.qtxt{font-size:.96rem;line-height:1.75;margin-bottom:1.1rem;min-height:68px;}
+.opts{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem;}
+.opt{display:flex;align-items:flex-start;gap:.75rem;padding:.75rem .95rem;background:var(--bg3);border:1px solid var(--b1);border-radius:8px;cursor:pointer;transition:all .18s;user-select:none;}
+.opt:hover{border-color:var(--b2);background:var(--g3);}
+.opt.sel{border-color:var(--gold);background:var(--g3);}
+.opt.ok{border-color:var(--green);background:rgba(61,214,140,0.07);}
+.opt.no{border-color:var(--red);background:rgba(255,92,92,0.07);}
+.opt.ok .ok{background:var(--green);color:#000;border-color:var(--green);}
+.opt.no .ok{background:var(--red);color:#fff;border-color:var(--red);}
+.opt.sel .ok{background:var(--gold);color:#000;border-color:var(--gold);}
+.okey{font-size:.7rem;font-family:var(--mono);font-weight:700;width:22px;height:22px;min-width:22px;border-radius:4px;display:flex;align-items:center;justify-content:center;background:var(--bg4);border:1px solid var(--b2);transition:all .15s;}
+.otxt{font-size:.86rem;line-height:1.5;}
+.expl{display:none;margin-bottom:.9rem;padding:.8rem .95rem;background:rgba(74,158,255,0.05);border:1px solid rgba(74,158,255,0.15);border-radius:8px;font-size:.8rem;line-height:1.6;}
+.expl.show{display:block;animation:fu .4s ease both;}
+@keyframes fu{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.qact{display:flex;gap:.5rem;flex-wrap:wrap;}
+.btn{padding:.55rem 1.1rem;border-radius:8px;border:1px solid var(--b2);background:transparent;cursor:pointer;font-family:var(--sans);font-size:.8rem;font-weight:500;color:var(--text);transition:all .18s;user-select:none;}
+.btn:hover{background:var(--g3);border-color:var(--gold);}
+.btn-g{background:var(--gold);color:#080C12;border-color:var(--gold);font-weight:700;}
+.btn-g:hover{background:var(--gold2);}
+.btn.off{opacity:.35;pointer-events:none;}
+
+/* AI */
+.aip{background:var(--bg2);border:1px solid var(--b1);border-radius:14px;display:flex;flex-direction:column;height:560px;}
+.aihd{padding:.8rem 1rem;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:.6rem;flex-shrink:0;}
+.aidot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 7px var(--green);animation:pu 2.5s ease-in-out infinite;}
+@keyframes pu{0%,100%{opacity:1}50%{opacity:.2}}
+.ait{font-size:.85rem;font-weight:600;color:var(--gold);}
+.aim2{font-size:.62rem;color:var(--m2);font-family:var(--mono);margin-left:auto;}
+.aimsg{flex:1;overflow-y:auto;padding:.85rem;display:flex;flex-direction:column;gap:.6rem;scrollbar-width:thin;scrollbar-color:var(--b1) transparent;}
+.msg{padding:.6rem .85rem;border-radius:8px;font-size:.8rem;line-height:1.6;animation:fu .3s ease both;}
+.ma{background:var(--bg3);border:1px solid var(--b1);align-self:flex-start;max-width:95%;}
+.mu{background:rgba(245,197,66,0.08);border:1px solid rgba(245,197,66,0.2);color:var(--gold);align-self:flex-end;max-width:90%;}
+.ml{color:var(--m2);font-style:italic;}
+.aiq{padding:.55rem .85rem;border-top:1px solid var(--b1);display:flex;gap:.35rem;flex-wrap:wrap;flex-shrink:0;}
+.qb{font-size:.65rem;font-family:var(--mono);padding:.22rem .55rem;border-radius:4px;border:1px solid var(--b1);background:var(--bg3);color:var(--m2);cursor:pointer;transition:all .15s;}
+.qb:hover{border-color:var(--gold);color:var(--gold);background:var(--g3);}
+.aiir{padding:.65rem;border-top:1px solid var(--b1);display:flex;gap:.45rem;flex-shrink:0;}
+.aiinp{flex:1;background:var(--bg3);border:1px solid var(--b1);border-radius:8px;padding:.5rem .8rem;font-family:var(--sans);font-size:.8rem;color:var(--text);outline:none;resize:none;line-height:1.5;}
+.aiinp:focus{border-color:var(--b2);}
+.aisnd{width:36px;height:36px;background:var(--gold);border:none;border-radius:8px;cursor:pointer;color:#080C12;display:flex;align-items:center;justify-content:center;font-size:.95rem;transition:all .15s;flex-shrink:0;}
+.aisnd:hover{background:var(--gold2);}
+
+/* HISTORY */
+.hh{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+.ht{font-size:1.05rem;font-weight:600;color:var(--gold);}
+.sl{display:flex;flex-direction:column;gap:.65rem;}
+.sc{background:var(--bg2);border:1px solid var(--b1);border-radius:11px;padding:.9rem 1.1rem;display:flex;align-items:center;gap:1rem;}
+.si{font-size:1.4rem;}
+.sif{flex:1;}
+.sn{font-size:.88rem;font-weight:600;}
+.sm{font-size:.68rem;color:var(--m2);font-family:var(--mono);margin-top:2px;}
+.sp{font-size:1.25rem;font-weight:700;font-family:var(--mono);}
+.chi{color:var(--green)}.cmi{color:var(--amber)}.clo{color:var(--red)}
+.hem{text-align:center;padding:3rem;color:var(--m2);}
+.hem div{font-size:2rem;margin-bottom:.6rem;}
+
+/* RESULTS */
+.rw{max-width:560px;margin:0 auto;background:var(--bg2);border:1px solid var(--b1);border-radius:16px;padding:1.75rem;text-align:center;}
+.rb{font-size:4.5rem;font-weight:800;font-family:var(--mono);line-height:1;animation:sc .6s cubic-bezier(.34,1.6,.64,1) both;}
+@keyframes sc{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
+.rl{font-size:.88rem;color:var(--m2);margin:.4rem 0 1.25rem;}
+.rbrs{display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-bottom:1.1rem;}
+.rbar{background:var(--bg3);border:1px solid var(--b1);border-radius:9px;padding:.75rem .9rem;text-align:left;}
+.rbl{font-size:.68rem;color:var(--m2);margin-bottom:.3rem;}
+.rbn{font-size:1.2rem;font-weight:700;font-family:var(--mono);}
+.eb{padding:.85rem;background:var(--g3);border:1px solid var(--b2);border-radius:9px;margin-bottom:1.25rem;}
+.ebl{font-size:.7rem;color:var(--m2);margin-bottom:.25rem;}
+.ebv{font-size:1.35rem;font-weight:700;color:var(--gold);}
+.rac{display:flex;gap:.65rem;justify-content:center;}
+
+@media(max-width:800px){.main{grid-template-columns:1fr;}.subjs{grid-template-columns:repeat(4,1fr);}.aip{height:320px;}.tmr{display:none;}}
+@media(max-width:480px){.subjs{grid-template-columns:repeat(2,1fr);}.rbrs{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- KEY SCREEN -->
+<div class="ks" id="ks">
+  <div class="kb">
+    <div class="ki">🔑</div>
+    <div class="kt">API ключ Claude</div>
+    <div class="kd">Вставь свой ключ — он сохранится в браузере и больше не понадобится.<br>Получить: <a href="https://console.anthropic.com/keys" target="_blank">console.anthropic.com/keys</a></div>
+    <input class="kinp" id="kinp" type="password" placeholder="sk-ant-api03-..." autocomplete="off"/>
+    <div class="kerr" id="kerr"></div>
+    <div class="btn btn-g" id="kbtn" onclick="saveKey()" style="width:100%;text-align:center;padding:.7rem;display:block;cursor:pointer;">✓ Сохранить и начать</div>
+    <div class="kn">🔒 Ключ хранится только в твоём браузере. Сменить — кнопка 🔑 в шапке.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+  <div class="hdr">
+    <div class="logo">
+      <div class="logo-ic">🎓</div>
+      <div><div class="logo-t">ЕНТ Репетитор</div><div class="logo-s">AI · Kazakhstan · 2025</div></div>
+    </div>
+    <div class="tmr">
+      <div class="tmr-l">ТАЙМЕР ЕНТ</div>
+      <div class="tmr-v" id="tv">4:00:00</div>
+      <div class="tmr-bs">
+        <div class="tb" id="ttgl" onclick="tToggle()">▶ Старт</div>
+        <div class="tb" onclick="tReset()">↺</div>
+        <div class="tb" onclick="tSet(30)">30м</div>
+        <div class="tb" onclick="tSet(240)">ЕНТ</div>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="st"><div class="st-n" id="sc">0</div><div class="st-l">Верно</div></div>
+      <div class="st"><div class="st-n" id="st">0</div><div class="st-l">Всего</div></div>
+      <div class="st"><div class="st-n" id="sp">—</div><div class="st-l">%</div></div>
+      <div class="tb" onclick="changeKey()" title="Сменить ключ">🔑</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" id="tp" onclick="tab('p')">📝 Практика</div>
+    <div class="tab" id="th" onclick="tab('h')">📊 История</div>
+    <div class="tab" id="tr" onclick="tab('r')">🏆 Результаты</div>
+  </div>
+
+  <!-- PRACTICE -->
+  <div id="vp">
+    <div class="subjs">
+      <div class="sj active" onclick="setSbj('math',this)"><div class="sj-ic">📐</div><div class="sj-nm">Математика</div></div>
+      <div class="sj" onclick="setSbj('physics',this)"><div class="sj-ic">⚡</div><div class="sj-nm">Физика</div></div>
+      <div class="sj" onclick="setSbj('history',this)"><div class="sj-ic">🏛</div><div class="sj-nm">История КЗ</div></div>
+      <div class="sj" onclick="setSbj('biology',this)"><div class="sj-ic">🧬</div><div class="sj-nm">Биология</div></div>
+      <div class="sj" onclick="setSbj('chemistry',this)"><div class="sj-ic">🧪</div><div class="sj-nm">Химия</div></div>
+      <div class="sj" onclick="setSbj('geography',this)"><div class="sj-ic">🌍</div><div class="sj-nm">География</div></div>
+      <div class="sj" onclick="setSbj('russian',this)"><div class="sj-ic">📖</div><div class="sj-nm">Рус. язык</div></div>
+      <div class="sj" onclick="setSbj('kazakh',this)"><div class="sj-ic">🌾</div><div class="sj-nm">Қазақ тілі</div></div>
+    </div>
+    <div class="pgb"><div class="pgf" id="pg" style="width:0%"></div></div>
+    <div class="main">
+      <div>
+        <div class="qcard">
+          <div class="qtop">
+            <span class="qbg" id="qn">Вопрос 0</span>
+            <div class="brow">
+              <span class="qst" id="qs">Математика</span>
+              <span class="qdf de" id="qd">Лёгкий</span>
+            </div>
+          </div>
+          <div class="qtxt" id="qt">Выбери предмет и нажми <strong style="color:var(--gold)">«Новый вопрос»</strong>.</div>
+          <div class="opts" id="qo">
+            <div class="opt" style="opacity:.2;pointer-events:none;"><span class="okey">А</span><span class="otxt">—</span></div>
+            <div class="opt" style="opacity:.2;pointer-events:none;"><span class="okey">Б</span><span class="otxt">—</span></div>
+            <div class="opt" style="opacity:.2;pointer-events:none;"><span class="okey">В</span><span class="otxt">—</span></div>
+            <div class="opt" style="opacity:.2;pointer-events:none;"><span class="okey">Г</span><span class="otxt">—</span></div>
+          </div>
+          <div class="expl" id="ex"></div>
+          <div class="qact">
+            <div class="btn btn-g" onclick="loadQ()">▶ Новый вопрос</div>
+            <div class="btn" onclick="hint()">💡 Подсказка</div>
+            <div class="btn off" id="bchk" onclick="check()">✓ Проверить</div>
+            <div class="btn" onclick="theory()" style="margin-left:auto;">📚 Теория</div>
+          </div>
+        </div>
+      </div>
+      <div class="aip">
+        <div class="aihd">
+          <div class="aidot"></div>
+          <div class="ait">ИИ-Репетитор</div>
+          <div class="aim2">Claude Sonnet</div>
+        </div>
+        <div class="aimsg" id="msgs">
+          <div class="msg ma">Сәлем! 👋 Выбери предмет и нажми <strong>«Новый вопрос»</strong>. Задавай любые вопросы!</div>
+        </div>
+        <div class="aiq">
+          <div class="qb" onclick="qa('Объясни теорию по теме')">📘 Теория</div>
+          <div class="qb" onclick="qa('Как решать такие задачи?')">🔍 Метод</div>
+          <div class="qb" onclick="qa('Типичные ошибки на ЕНТ?')">⚠️ Ошибки</div>
+          <div class="qb" onclick="qa('Формула или правило')">📐 Формула</div>
+        </div>
+        <div class="aiir">
+          <textarea class="aiinp" id="ainp" rows="1" placeholder="Спроси репетитора..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send();}"></textarea>
+          <div class="aisnd" onclick="send()">➤</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div id="vh" style="display:none;">
+    <div class="hh">
+      <div class="ht">📊 История сессий</div>
+      <div class="btn" onclick="clrH()" style="font-size:.72rem;">🗑 Очистить</div>
+    </div>
+    <div class="sl" id="sl"></div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="vr" style="display:none;">
+    <div style="display:flex;justify-content:center;padding:1rem 0;">
+      <div class="rw">
+        <div style="font-size:.75rem;color:var(--m2);margin-bottom:.4rem;">Текущая сессия</div>
+        <div class="rb" id="rp" style="color:var(--gold);">0%</div>
+        <div class="rl" id="rl">Начни практику</div>
+        <div class="rbrs">
+          <div class="rbar"><div class="rbl">✅ Правильно</div><div class="rbn" id="rc" style="color:var(--green)">0</div></div>
+          <div class="rbar"><div class="rbl">❌ Ошибок</div><div class="rbn" id="rw" style="color:var(--red)">0</div></div>
+          <div class="rbar"><div class="rbl">📋 Всего</div><div class="rbn" id="rt">0</div></div>
+          <div class="rbar"><div class="rbl">🎯 Предмет</div><div class="rbn" id="rs" style="font-size:.85rem;">—</div></div>
+        </div>
+        <div class="eb"><div class="ebl">Прогноз балла ЕНТ (из 140)</div><div class="ebv" id="re">—</div></div>
+        <div class="rac">
+          <div class="btn btn-g" onclick="tab('p');loadQ()">▶ Продолжить</div>
+          <div class="btn" onclick="saveSess()">💾 Сохранить</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var K = localStorage.getItem('ent_k') || '';
+var SN = {math:'Математика',physics:'Физика',history:'История Казахстана',biology:'Биология',chemistry:'Химия',geography:'География',russian:'Русский язык',kazakh:'Қазақ тілі'};
+var SI = {math:'📐',physics:'⚡',history:'🏛',biology:'🧬',chemistry:'🧪',geography:'🌍',russian:'📖',kazakh:'🌾'};
+var SP = {
+  math:'математика ЕНТ: алгебра, геометрия, тригонометрия, функции, уравнения, логарифмы, производные, вероятность',
+  physics:'физика ЕНТ: механика, термодинамика, электричество, магнетизм, оптика, ядерная физика',
+  history:'история Казахстана ЕНТ: древние племена, казахские ханства, джунгарские войны, царская Россия, советский период, независимость РК',
+  biology:'биология ЕНТ: клетка, генетика, эволюция, экология, ботаника, зоология, анатомия',
+  chemistry:'химия ЕНТ: периодическая таблица, типы реакций, органика, кислоты и основания',
+  geography:'география ЕНТ: физическая и экономическая география Казахстана, климат, рельеф',
+  russian:'русский язык ЕНТ: орфография, пунктуация, морфология, синтаксис, лексика',
+  kazakh:'қазақ тілі ЕНТ: орфография, грамматика, морфология, синтаксис'
+};
+
+var cs='math', cq=null, sel=null, ans=false, cor=0, tot=0, qn=0, ld=false;
+var sess=[];
+try{sess=JSON.parse(localStorage.getItem('ent_s')||'[]');}catch(e){}
+
+// KEY
+function initKey(){
+  if(K){document.getElementById('ks').style.display='none';document.getElementById('app').style.display='block';}
+  else{document.getElementById('ks').style.display='flex';document.getElementById('app').style.display='none';}
+}
+
+function saveKey(){
+  var v=document.getElementById('kinp').value.trim();
+  var err=document.getElementById('kerr');
+  var btn=document.getElementById('kbtn');
+  err.style.display='none';
+  if(!v.startsWith('sk-ant')){err.textContent='❌ Ключ должен начинаться с sk-ant-...';err.style.display='block';return;}
+  btn.textContent='⏳ Проверяем...';
+  fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':v,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:5,messages:[{role:'user',content:'hi'}]})
+  })
+  .then(function(r){return r.json();})
+  .then(function(d){
+    btn.textContent='✓ Сохранить и начать';
+    if(d.error){err.textContent='❌ '+d.error.message;err.style.display='block';return;}
+    K=v; localStorage.setItem('ent_k',v);
+    document.getElementById('ks').style.display='none';
+    document.getElementById('app').style.display='block';
+  })
+  .catch(function(){btn.textContent='✓ Сохранить и начать';err.textContent='❌ Ошибка сети';err.style.display='block';});
+}
+
+function changeKey(){
+  document.getElementById('kinp').value='';
+  document.getElementById('kerr').style.display='none';
+  document.getElementById('ks').style.display='flex';
+  document.getElementById('app').style.display='none';
+}
+
+document.getElementById('kinp').addEventListener('keydown',function(e){if(e.key==='Enter')saveKey();});
+
+// TIMER
+var ts=14400, ton=false, tiv=null;
+function tToggle(){
+  if(ton){clearInterval(tiv);ton=false;document.getElementById('ttgl').textContent='▶ Старт';document.getElementById('ttgl').classList.remove('on');}
+  else{ton=true;document.getElementById('ttgl').textContent='⏸ Пауза';document.getElementById('ttgl').classList.add('on');
+    tiv=setInterval(function(){ts--;rTimer();if(ts<=0){clearInterval(tiv);ton=false;document.getElementById('tv').textContent='ВРЕМЯ!';}},1000);}
+}
+function tReset(){clearInterval(tiv);ton=false;ts=14400;document.getElementById('ttgl').textContent='▶ Старт';document.getElementById('ttgl').classList.remove('on');rTimer();}
+function tSet(m){clearInterval(tiv);ton=false;ts=m*60;document.getElementById('ttgl').textContent='▶ Старт';document.getElementById('ttgl').classList.remove('on');rTimer();}
+function rTimer(){
+  var h=Math.floor(ts/3600),m=Math.floor((ts%3600)/60),s=ts%60;
+  var el=document.getElementById('tv');
+  el.textContent=(h>0?h+':':'')+(m<10&&h>0?'0':'')+m+':'+(s<10?'0':'')+s;
+  el.className='tmr-v'+(ts<=60?' d':ts<=300?' w':'');
+}
+
+// TABS
+function tab(n){
+  ['p','h','r'].forEach(function(t){
+    document.getElementById('v'+t).style.display=t===n?'block':'none';
+    document.getElementById('t'+t).classList.toggle('active',t===n);
+  });
+  if(n==='h')rHistory();
+  if(n==='r')rResults();
+}
+
+// SUBJECTS
+function setSbj(s,el){
+  cs=s;
+  document.querySelectorAll('.sj').forEach(function(b){b.classList.remove('active');});
+  el.classList.add('active');
+  document.getElementById('qs').textContent=SN[s];
+  addMsg('a',SI[s]+' Предмет: <strong>'+SN[s]+'</strong>. Нажми «Новый вопрос»!');
+}
+
+// CLAUDE API — прямой вызов с ключом из браузера
+function claude(prompt, sys, tok, ok, fail){
+  fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'x-api-key':K,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true'
+    },
+    body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:tok,system:sys,messages:[{role:'user',content:prompt}]})
+  })
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(d.error){fail(d.error.message);return;}
+    ok((d.content&&d.content[0])?d.content[0].text:'');
+  })
+  .catch(function(e){fail(e.message);});
+}
+
+// QUESTION
+function loadQ(){
+  if(ld)return;
+  ld=true; ans=false; sel=null;
+  document.getElementById('bchk').classList.add('off');
+  document.getElementById('qt').innerHTML='<span style="color:var(--m2)">⏳ Генерирую вопрос...</span>';
+  document.getElementById('qo').innerHTML='';
+  document.getElementById('ex').className='expl';
+  var alltopics={math:['алгебра','геометрия','тригонометрия','логарифмы','производные','вероятность','уравнения','неравенства'],physics:['механика','термодинамика','электричество','магнетизм','оптика','ядерная физика'],history:['казахские ханства','джунгарские войны','советский период','независимость РК','древние племена','XIX век в Казахстане','народные восстания'],biology:['строение клетки','генетика','эволюция','экология','ботаника','зоология','анатомия человека'],chemistry:['периодическая таблица','химические реакции','органическая химия','кислоты и основания','окисление-восстановление'],geography:['рельеф Казахстана','климат Казахстана','реки и озёра','природные зоны','экономическая география'],russian:['орфография','пунктуация','морфология','синтаксис','лексика и фразеология'],kazakh:['орфография','грамматика','морфология','синтаксис','сөзжасам']};
+  var tlist=alltopics[cs]||alltopics['math'];
+  var rt=tlist[Math.floor(Math.random()*tlist.length)];
+  var diffs=['easy','medium','hard'];
+  var rd=diffs[Math.floor(Math.random()*3)];
+  var seed=Math.floor(Math.random()*99999);
+  var p='Предмет: '+SP[cs]+'. Тема: '+rt+'. ID='+seed+'\nСгенерируй 1 УНИКАЛЬНЫЙ вопрос ЕНТ строго по теме "'+rt+'". Сложность: '+rd+'. Не повторяй стандартные вопросы — придумай оригинальный.\nОтветь ТОЛЬКО JSON без markdown:\n{"q":"вопрос","opts":["вар1","вар2","вар3","вар4"],"ans":0,"diff":"'+rd+'","topic":"'+rt+'","explain":"объяснение 2-3 предложения"}\nans=индекс 0-3';
+  claude(p,'Отвечай ТОЛЬКО валидным JSON без markdown.',700,
+    function(t){
+      try{
+        var q=JSON.parse(t.replace(/```json|```/g,'').trim());
+        cq=q; qn++;
+        document.getElementById('qn').textContent='Вопрос '+qn;
+        var dc=q.diff==='easy'?'de':q.diff==='hard'?'dh':'dm';
+        var dl=q.diff==='easy'?'Лёгкий':q.diff==='hard'?'Сложный':'Средний';
+        document.getElementById('qd').className='qdf '+dc;
+        document.getElementById('qd').textContent=dl;
+        document.getElementById('qt').textContent=q.q;
+        var keys=['А','Б','В','Г'],html='';
+        for(var i=0;i<q.opts.length;i++){
+          var ot=String(q.opts[i]).replace(/^[АAБBВVГGабвгABCDabcd]\)\s*/,'');
+          html+='<div class="opt" onclick="pick(this,'+i+')"><span class="okey">'+keys[i]+'</span><span class="otxt">'+esc(ot)+'</span></div>';
+        }
+        document.getElementById('qo').innerHTML=html;
+        addMsg('a','📝 Вопрос'+(q.topic?' · '+q.topic:'')+'. Выбери ответ!');
+      }catch(e){document.getElementById('qt').innerHTML='<span style="color:var(--red)">Ошибка. Попробуй снова.</span>';}
+      ld=false;
+    },
+    function(e){document.getElementById('qt').innerHTML='<span style="color:var(--red)">Ошибка: '+esc(e)+'</span>';ld=false;}
+  );
+}
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function pick(el,i){
+  if(ans)return;
+  sel=i;
+  document.querySelectorAll('.opt').forEach(function(o){o.classList.remove('sel');});
+  el.classList.add('sel');
+  document.getElementById('bchk').classList.remove('off');
+}
+
+function check(){
+  if(sel===null||ans||!cq)return;
+  ans=true; tot++;
+  var opts=document.querySelectorAll('.opt');
+  opts[cq.ans].classList.add('ok');
+  if(sel!==cq.ans){opts[sel].classList.add('no');addMsg('a','❌ Неверно. Правильный: <strong>'+['А','Б','В','Г'][cq.ans]+'</strong>. '+esc(cq.explain));}
+  else{cor++;addMsg('a','✅ Правильно! '+esc(cq.explain));}
+  document.getElementById('sc').textContent=cor;
+  document.getElementById('st').textContent=tot;
+  var p=Math.round(cor/tot*100);
+  document.getElementById('sp').textContent=p+'%';
+  document.getElementById('pg').style.width=p+'%';
+  var ex=document.getElementById('ex');
+  ex.innerHTML='💡 '+esc(cq.explain);
+  ex.className='expl show';
+}
+
+function hint(){
+  if(!cq){addMsg('a','Сначала загрузи вопрос!');return;}
+  addMsg('u','Подсказка');addMsg('a','⏳...',true);
+  claude('Вопрос ЕНТ: '+cq.q+'\nДай подсказку не раскрывая ответ. 1-2 предложения.','Ты репетитор ЕНТ.',200,
+    function(t){upd('💡 '+t);},function(){upd('Ошибка.');});
+}
+
+function theory(){
+  var tp=cq?(cq.topic||SN[cs]):SN[cs];
+  addMsg('u','Теория: '+tp);addMsg('a','⏳...',true);
+  claude('Объясни тему "'+tp+'" для ЕНТ Казахстана. Ключевые понятия, формулы, примеры. 3-5 предложений.','Ты репетитор ЕНТ. Отвечай по-русски.',500,
+    function(t){upd('📚 '+t);},function(){upd('Ошибка.');});
+}
+
+function qa(txt){
+  addMsg('u',txt);addMsg('a','⏳...',true);
+  var ctx=(cq?'Вопрос: '+cq.q+'\n':'')+'Предмет: '+SN[cs];
+  claude(ctx+'\n\n'+txt,'Ты репетитор ЕНТ Казахстан. Отвечай кратко по-русски.',400,
+    function(t){upd(t);},function(){upd('Ошибка.');});
+}
+
+function send(){
+  var el=document.getElementById('ainp'),txt=el.value.trim();
+  if(!txt)return; el.value='';
+  addMsg('u',txt);addMsg('a','⏳...',true);
+  var ctx=(cq?'Вопрос: '+cq.q+'\n':'')+'Предмет: '+SN[cs];
+  claude(ctx+'\nВопрос: '+txt,'Ты репетитор ЕНТ Казахстан. Отвечай кратко по-русски.',500,
+    function(t){upd(t);},function(){upd('Ошибка подключения.');});
+}
+
+function addMsg(r,t,isL){
+  var el=document.getElementById('msgs'),d=document.createElement('div');
+  d.className='msg '+(r==='a'?'ma':'mu')+(isL?' ml':'');
+  d.innerHTML=t; el.appendChild(d); el.scrollTop=el.scrollHeight;
+}
+function upd(t){
+  var el=document.getElementById('msgs'),last=el.lastElementChild;
+  if(last){last.innerHTML=t;last.classList.remove('ml');} el.scrollTop=el.scrollHeight;
+}
+
+// HISTORY
+function saveSess(){
+  if(!tot){alert('Нет данных!');return;}
+  var p=Math.round(cor/tot*100);
+  sess.unshift({id:Date.now(),date:new Date().toLocaleString('ru-RU',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}),subj:cs,sn:SN[cs],cor:cor,tot:tot,p:p,ent:Math.round(p/100*140)});
+  if(sess.length>50)sess=sess.slice(0,50);
+  localStorage.setItem('ent_s',JSON.stringify(sess));
+  addMsg('a','💾 Сохранено! '+SN[cs]+': '+p+'%');
+  alert('Сессия сохранена!');
+}
+
+function rHistory(){
+  var el=document.getElementById('sl');
+  if(!sess.length){el.innerHTML='<div class="hem"><div>📭</div>Сессий пока нет!</div>';return;}
+  el.innerHTML=sess.map(function(s){
+    var c=s.p>=80?'chi':s.p>=50?'cmi':'clo';
+    return '<div class="sc"><div class="si">'+SI[s.subj]+'</div><div class="sif"><div class="sn">'+s.sn+'</div><div class="sm">'+s.date+' · '+s.cor+'/'+s.tot+' · ЕНТ ~'+s.ent+'/140</div></div><div class="sp '+c+'">'+s.p+'%</div></div>';
+  }).join('');
+}
+
+function clrH(){if(confirm('Очистить историю?')){sess=[];localStorage.removeItem('ent_s');rHistory();}}
+
+function rResults(){
+  var p=tot?Math.round(cor/tot*100):0;
+  document.getElementById('rp').textContent=p+'%';
+  document.getElementById('rp').style.color=p>=80?'var(--green)':p>=50?'var(--amber)':'var(--red)';
+  document.getElementById('rc').textContent=cor;
+  document.getElementById('rw').textContent=tot-cor;
+  document.getElementById('rt').textContent=tot;
+  document.getElementById('rs').textContent=SN[cs];
+  document.getElementById('re').textContent=tot?Math.round(p/100*140)+' из 140':'—';
+  var lb=['','Нужно практики 📚','Хорошая база! 💪','Готов к ЕНТ! 🏆'];
+  document.getElementById('rl').textContent=tot?lb[p>=80?3:p>=50?2:1]:'Начни практику';
+}
+
+rTimer();
+initKey();
+</script>
+</body>
+</html>
